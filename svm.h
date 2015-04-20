@@ -141,6 +141,7 @@ struct svm_model
 	double *rho;		/* constants in decision functions (rho[k*(k-1)/2]) */
 	double *probA;		/* pariwise probability information */
 	double *probB;
+	int *sv_indices;	/* sv_indices[0,...,nSV-1] are values in [1,...,num_traning_data] to indicate SVs in the training set */
         int openset_dim;        /* dimension of data for 1-vs-set models,  if open_set, wsvm or open_bset (5,6,7) then openset_dim=k, if open_pair then its k*(k-1)/2*/
         double *alpha, *omega;  /* planes offsets for 1-vs-set   alpha[openset_dim], omega[openset_dim] */
         double *wbltrans,*wblshape,*wblscale;        /* weibul parms for wsvm   all of dimension [openset_dim] */
