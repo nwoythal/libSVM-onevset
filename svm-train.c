@@ -8,6 +8,8 @@
 
 void print_null(const char *s) {}
 
+// exit_with_help() - print out the options for correct use of svm-train in the 
+//		event of an incorrect entry. 
 void exit_with_help()
 {
 	printf(
@@ -42,16 +44,20 @@ void exit_with_help()
 	exit(1);
 }
 
+// exit_input_error() - in the event of a wrong input format, display an error message
+//		and the line number where the error occured.
 void exit_input_error(int line_num)
 {
 	fprintf(stderr,"Wrong input format at line %d\n", line_num);
 	exit(1);
 }
 
+// function prototypes
 void parse_command_line(int argc, char **argv, char *input_file_name, char *model_file_name);
 void read_problem(const char *filename);
 void do_cross_validation();
 
+// global structures and variables
 struct svm_parameter param;		// set by parse_command_line
 struct svm_problem prob;		// set by read_problem
 struct svm_model *model;
@@ -62,6 +68,7 @@ int nr_fold;
 static char *line = NULL;
 static int max_line_len;
 
+// readline() - takes a pointer to an input file, and returns all the lines from the file
 static char* readline(FILE *input)
 {
 	int len;
@@ -80,6 +87,7 @@ static char* readline(FILE *input)
 	return line;
 }
 
+// Begin main function
 int main(int argc, char **argv)
 {
 	char input_file_name[1024];
