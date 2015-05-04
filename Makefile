@@ -52,8 +52,8 @@ svm-train: svm-train.c svm.o
 	$(CXX) $(CFLAGS) $(FORCECXX) svm-train.c $(FORCEO) svm.o -o svm-train -lm
 svm-scale: svm-scale.c 
 	$(CXX) $(CFLAGS) $(FORCECXX) svm-scale.c -o svm-scale
-svm.o: svm.c svm.h 
-	$(CXX) $(CFLAGS) $(FORCECXX) -c svm.c 
+svm.o: svm.cpp svm.h 
+	$(CXX) $(CFLAGS) $(FORCECXX) -c svm.cpp 
 clean:
 	rm -fr *~ svm.o svm-train svm-predict svm-scale libsvm.so.$(SHVER)  
 	rm -rf svm-train.dSYM svm-predict.dSYM svm-scale.dSYM 
@@ -81,8 +81,8 @@ svm-train: svm-train.c svm.o $(LIBMR_LIB)
 	$(CXX) $(CFLAGS) svm-train.c svm.o $(LIBMR_LIB) -o svm-train -lm
 svm-scale: svm-scale.c $(LIBMR_LIB)
 	$(CXX) $(CFLAGS) svm-scale.c $(LIBMR_LIB) -o svm-scale
-svm.o: svm.c svm.h 
-	$(CXX) $(CFLAGS) -c svm.c 
+svm.o: svm.cpp svm.h 
+	$(CXX) $(CFLAGS) -c svm.cpp 
 clean:
 	rm -fr *~ svm.o svm-train svm-predict svm-scale libsvm.so.$(SHVER) $(LIBMR_DIR)/libMR/build
 endif
