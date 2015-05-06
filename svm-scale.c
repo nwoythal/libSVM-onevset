@@ -4,6 +4,9 @@
 #include <ctype.h>
 #include <string.h>
 
+// this is the function that is executed when one attempts to run svm-scale
+// without any arguments. It is implemented to help the user know what 
+// options/flags they are capable of using.
 void exit_with_help()
 {
 	printf(
@@ -18,6 +21,7 @@ void exit_with_help()
 	exit(1);
 }
 
+// declare all global variables
 char *line = NULL;
 int max_line_len = 1024;
 double lower=-1.0,upper=1.0,y_lower,y_upper;
@@ -33,6 +37,7 @@ long int new_num_nonzeros = 0;
 #define max(x,y) (((x)>(y))?(x):(y))
 #define min(x,y) (((x)<(y))?(x):(y))
 
+//function prototypes
 void output_target(double value);
 void output(int index, double value);
 char* readline(FILE *input);
@@ -44,6 +49,8 @@ int main(int argc,char **argv)
 	char *save_filename = NULL;
 	char *restore_filename = NULL;
 
+	// this loop searches for '-' flags in the arguments the user entered
+	// from the terminal when they ran svm-scale and implements each one
 	for(i=1;i<argc;i++)
 	{
 		if(argv[i][0] != '-') break;
@@ -66,24 +73,29 @@ int main(int argc,char **argv)
 		}
 	}
 
+	// tests if user input improper values for the upper and lower options
+	// i.e. upper limit was actually less than lower limit and vise versa
 	if(!(upper > lower) || (y_scaling && !(y_upper > y_lower)))
 	{
 		fprintf(stderr,"inconsistent lower/upper specification\n");
 		exit(1);
 	}
 	
+	// makes sure user doesn't attempt to use the -r and -s flags together
 	if(restore_filename && save_filename)
 	{
 		fprintf(stderr,"cannot use -r and -s simultaneously\n");
 		exit(1);
 	}
 
+	// user didn't specify a file to use with svm-scale, so show them help
 	if(argc != i+1) 
 		exit_with_help();
 
+	// attempt to open the file that the user ran svm-scale with
 	fp=fopen(argv[i],"r");
 	
-	if(fp==NULL)
+	if(fp==NULL) // failed to open file
 	{
 		fprintf(stderr,"can't open file %s\n", argv[i]);
 		exit(1);
@@ -105,6 +117,8 @@ int main(int argc,char **argv)
 	/* pass 1: find out max index of attributes */
 	max_index = 0;
 
+	// user implemented -r flag in order to attempt to
+	// restore scaling parameters from restore_filename
 	if(restore_filename)
 	{
 		int idx, c;
@@ -131,6 +145,8 @@ int main(int argc,char **argv)
 		rewind(fp_restore);
 	}
 
+	// read the file specified by the user until there are no more lines
+	// i.e. end of file has been reached
 	while(readline(fp)!=NULL)
 	{
 		char *p=line;
@@ -146,9 +162,11 @@ int main(int argc,char **argv)
 	}
 	rewind(fp);
 	
+	// allocate memory for feature_max and feature_min
 	feature_max = (double *)malloc((max_index+1)* sizeof(double));
 	feature_min = (double *)malloc((max_index+1)* sizeof(double));
 	
+	// failed to allocate memory
 	if(feature_max == NULL || feature_min == NULL)
 	{
 		fprintf(stderr,"can't allocate enough memory\n");
@@ -230,6 +248,8 @@ int main(int argc,char **argv)
 		fclose(fp_restore);
 	}
 	
+	// user implemented -s flag in order to attempt to
+	// save scaling parameters to save_filename
 	if(save_filename)
 	{
 		FILE *fp_save = fopen(save_filename,"w");
@@ -284,6 +304,7 @@ int main(int argc,char **argv)
 		printf("\n");
 	}
 
+	// scaling creating more nonzero values than there was originally
 	if (new_num_nonzeros > num_nonzeros)
 		fprintf(stderr, 
 			"Warning: original #nonzeros %ld\n"
@@ -291,6 +312,7 @@ int main(int argc,char **argv)
 			"Use -l 0 if many original feature values are zeros\n",
 			num_nonzeros, new_num_nonzeros);
 
+	// free up allocated memory
 	free(line);
 	free(feature_max);
 	free(feature_min);
@@ -298,6 +320,7 @@ int main(int argc,char **argv)
 	return 0;
 }
 
+// simple function to read a single line of a file passed as the parameter
 char* readline(FILE *input)
 {
 	int len;
@@ -316,6 +339,8 @@ char* readline(FILE *input)
 	return line;
 }
 
+// function to assign +1 or -1 classification (or other values if
+// otherwise specified in running options)
 void output_target(double value)
 {
 	if(y_scaling)
@@ -345,6 +370,7 @@ void output(int index, double value)
 			(value-feature_min[index])/
 			(feature_max[index]-feature_min[index]);
 
+	// counts # of data values that were not assigned the value of zero
 	if(value != 0)
 	{
 		printf("%d:%g ",index, value);
