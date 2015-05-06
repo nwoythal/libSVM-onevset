@@ -1,9 +1,12 @@
+//Include statements
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
 #include "svm.h"
+
+//Shorthand malloc
 #define Malloc(type,n) (type *)malloc((n)*sizeof(type))
 
 void print_null(const char *s) {}
@@ -166,6 +169,7 @@ void do_cross_validation()
 	free(target);
 }
 
+//Takes input arguments
 void parse_command_line(int argc, char **argv, char *input_file_name, char *model_file_name)
 {
 	int i;
