@@ -55,7 +55,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-
+//Include statments
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -65,22 +65,27 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <glob.h>
 
 #include "svm.h"
+
+//Function declaration for a null return
 int print_null(const char *s,...) {
     return 0;
 }
 
 static int (*info)(const char *fmt,...) = &printf;
 
+//Struct declarations
 struct svm_node *x;
-int max_nr_attr = 64;
-
 struct svm_model* model;
+
+//Variable declarations
+int max_nr_attr = 64;
 int predict_probability=0;
 double min_threshold = 0, max_threshold = 0;
 bool min_set = false, max_set = false;
 bool verbose=true;
 int debug_level=0;
 
+//Static Var Declarations
 static char *line = NULL;
 static int max_line_len;
 
@@ -94,8 +99,10 @@ bool output_scores = false;
 bool output_total_scores = false;
 bool output_votes = false;
 
+//Shorthand "new" malloc
 #define Malloc(type,n) (type *)malloc((n)*sizeof(type))
 
+//Read the input file and feed it to the program
 static char* readline(FILE *input)
 {
     int len;
@@ -114,12 +121,15 @@ static char* readline(FILE *input)
     return line;
 }
 
+//If the input data from the file is of the wrong format, this function is called and will exit the program
 void exit_input_error(int line_num)
 {
     fprintf(stderr,"Wrong input format at line %d\n", line_num);
     exit(1);
 }
 
+
+//The "magic" function, predicts and classifies the input data based on the SVM's algorithm
 void predict(FILE *input, FILE *output)
 {
     int correct = 0;
@@ -134,7 +144,8 @@ void predict(FILE *input, FILE *output)
 
     double *prob_estimates=NULL;
     int j;
-
+    
+    //if the -o flag is not declared, we will execute this loop
     if(predict_probability && !open_set)
     {
         if (svm_type==NU_SVR || svm_type==EPSILON_SVR)
@@ -222,7 +233,8 @@ void predict(FILE *input, FILE *output)
         sumpt += predict_label*target_label;
         ++total;
     }
-
+   
+   //Depending on the SVM's algorithm, math will occur here
     if (svm_type==NU_SVR || svm_type==EPSILON_SVR )
     {
         info("Mean squared error = %g (regression)\n",error/total);
@@ -237,6 +249,8 @@ void predict(FILE *input, FILE *output)
             free(prob_estimates);
     }
 }
+
+//If the command line arguments are wrong, this function is called and the program will exit
 void exit_with_help()
 {
     printf(
@@ -253,12 +267,14 @@ void exit_with_help()
     exit(1);
 }
 
+//Where the magic happens
 int main(int argc, char **argv)
 {
     FILE *input, *output;
     int i;
     double openset_min_probability=.001;
-    // parse options
+    // parse command line arguments
+    // To see what these arguments do, see exit_with_help
     for(i=1; i<argc; i++)
     {
         if(argv[i][0] != '-') break;
@@ -342,7 +358,8 @@ int main(int argc, char **argv)
     }
 
     predict(input,output);
-
+   
+    //Free memory so we have no memory leaks
     svm_free_and_destroy_model(&model);
     free(x);
     free(line);
